@@ -1,0 +1,3 @@
+https://betterprogramming.pub/introduction-to-locust-an-open-source-load-testing-tool-in-python-2b2e89ea1ff
+
+https://stackoverflow.com/questions/51131278/locust-load-testing-appropiate-number-of-users-to-simulate-and-hatch-rate
