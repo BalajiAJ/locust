@@ -1,3 +1,62 @@
 https://betterprogramming.pub/introduction-to-locust-an-open-source-load-testing-tool-in-python-2b2e89ea1ff
 
 https://stackoverflow.com/questions/51131278/locust-load-testing-appropiate-number-of-users-to-simulate-and-hatch-rate
+
+Related Work
+
+Tokenization Strategies for Training Models on Code: Tokenization is a way of separating a piece of text into smaller units called tokens. Typically Natural Language tokenizers are adopted for tokenizing Programming Languages. These tokenizers are not effective as the distribution of words in code is different from natural text. This session will detail tokenization strategies for Programming Languages by covering tokenizations in OpenAI Codex and Facebook TransCoder.
+
+PL Tokenizers
+
+Facebook Transcoder (https://arxiv.org/pdf/2006.03511.pdf): Recent approaches in multilingual natural language processing tend to use a common tokenizer [28], and a shared vocabulary for all languages. This reduces the overall vocabulary size, and maximizes the token overlap between languages, improving the cross-linguality of the model [14, 29]. In our case, a universal tokenizer would be suboptimal, as different languages use different patterns and keywords. The logical operators && and || exist in C++ where they should be tokenized as a single token, but not in Python. The indentations are critical in Python as they define the code structure, but have no meaning in languages like C++ or Java. We use the javalang5 tokenizer for Java, the tokenizer of the standard library for Python6, and the clang7 tokenizer for C++. These tokenizers ensure that meaningless modifications in the code (e.g. adding extra new lines or spaces) do not have any impact on the tokenized sequence. An example of tokenized code is given in Figure 3 in the appendix. We learn BPE codes [42] on extracted tokens, and split tokens into subword units. The BPE codes are learned with fastBPE8 on the concatenation of tokenized C++, Java, and Python files.
+
+OpenAI Codex (https://arxiv.org/pdf/2107.03374.pdf): In order to maximally leverage text representations from GPT, we base our code lexer on the GPT-3 text tokenizer. Since the distribution of words in GitHub code differs from that of natural text, this tokenizer is not very effective for representing code. The largest source of inefficiency arises from encoding whitespace, so we add an additional set of tokens for representing whitespace runs of different lengths. This allows us to represent code using approximately 30% fewer tokens.
+
+GPT-Neo-125M-Code-Clippy (https://huggingface.co/flax-community/gpt-neo-125M-code-clippy): As discussed in OpenAI's Codex paper, we modified the GPT-Neo model and tokenizer to accommodate for additional whitespace characters. Specifically, we add the following tokens ["\t\t", "  ", "    ", "        "] and since they are all related to indentation, we initialize the embedding layer of these tokens with the same weights as the \t token already present in the model in hopes the model will learn to associate these whitespace characters with indentation faster. A script to automatically do this can be found here.
+
+Salesforce CodeT5 (https://arxiv.org/pdf/2109.00859.pdf): In addition, we propose to leverage the developer-assigned identifiers in code. When writing programs, developers tend to employ informative identifiers to make the code more understandable, so that these identifiers would generally preserve rich code semantics, e.g., the “binarySearch” identifier in Figure 2 directly indicates its functionality. To fuse such code-specific knowledge, we propose a novel identifier-aware objective that trains the model to distinguish which tokens are identifiers and recover them when they are masked….Moreover, we employ the whole word masking by sampling spans before subword tokenization, which aims to avoid masking partial subtokens and is shown to be helpful (Sun et al., 2019)….Tokenization is a key ingredient for the success of pre-trained language models like BERT and GPT. They often employ a Byte-Pair Encoding (BPE) tokenizer (Sennrich et al., 2016) to alleviate the Out-of-Vocabulary (OoV) issues. Specifically, we train a Byte-level BPE tokenizer following Radford et al. (2019) and set the vocabulary size to 32,000 as T5.
+
+We add additional special tokens ([PAD], [CLS], [SEP], [MASK0], ..., [MASK99]). This tokenzier is trained on all of our pre-training data with non-printable characters and low-frequent tokens (occurring <3 times) filtered. We compare it with T5’s default tokenizer and find that our tokenizer largely reduces the length of tokenized code sequence by 30% - 45% on downstream tasks. This will accelerate the training and especially benefit generation tasks due to the shorter sequence to predict. We also spot a severe problem for applying the T5’s default tokenizer on source code, where it would encode some common code tokens such as brackets [‘{’, ‘}’] into unknown tokens.
+
+PaLM was trained using a combination of English and multilingual datasets that include high-quality web documents, books, Wikipedia, conversations, and GitHub code. We also created a “lossless” vocabulary that preserves all whitespace (especially important for code), splits out-of-vocabulary Unicode characters into bytes, and splits numbers into individual tokens, one for each digit. ( https://ai.googleblog.com/2022/04/pathways-language-model-palm-scaling-to.html)
+
+Techniques for improving tokenization efficiency
+
+How data records are pre-processed to attain behavior similar to pre-trained tokenizer for newly added keywords.
+1. Space encoding (+tabs, +new lines).
+2. Keyword encoding (+operators). Co-occurrence?
+3. Case encoding.
+4. Non-English character encoding. (https://arxiv.org/pdf/2003.07914.pdf)
+5. (a) Replace Identifiers with smaller alphabets (lesser tokens). (b) Effect of Identifier Tokenization on Automatic Source Code Documentation (https://doi.org/10.1007/s13369-021-06149-7).
+6. Remove comments: License Comments, Task annotations, Long comments, Commented source code, Automatically generated comments by the IDE. https://ieeexplore.ieee.org/document/7820211: Using Natural Language Processing to Automatically Detect Self-Admitted Technical Debt.
+7. Encode string literals.
+8. Minification of JavaScript, https://github.com/dflook/python-minifier for Python, ..
+9. Learned Token Pruning for Transformers (https://arxiv.org/pdf/2107.00910.pdf), Dynamic token reduction for accelerating BERT inference (it is using RL and so it might not be useful) (https://arxiv.org/pdf/2105.11618.pdf).
+10. Code tokens and sub token encodings for source code (https://arxiv.org/pdf/2004.13651.pdf).
+11. Import statements can be removed as it does not add value to documentation.
+12. Towards Automatically Generating Summary Comments for Java Methods (https://dl.acm.org/doi/abs/10.1145/1858996.1859006): Use this model to remove irrelevant sections of code with respect to documentation and then pass the shortened code to ML model for documentation.
+13. ? (How to improve (reduce) Fertility by adopting morphology in NL and adopt it for PL?).
+
+Evaluation of Tokenization Schemes
+
+Here is the list of the standard metrics for evaluating different tokenization schemes (for non-tokenization-free models) without training a full-sized model.
+
+1. Sub-Word Fertility / Sequence Lengths: Sub-Word Fertility is the average number of sub words produced per tokenized word (http://juditacs.github.io/2019/02/19/bert-tokenization-stats.html). Sequence Lengths: Increase in length of the encoded sentence increases the computational cost for sequence modeling (https://arxiv.org/pdf/2004.14870.pdf). [@samson] I believe fertility and sequence length are two operationalizations of the same idea, one is a word level metric and the other is a sentence level one. [@Mike Tian-Jian Jiang] Word level metrics would be less reliable on non whitespaced languages (From characters to words: the turning point of BPE merges - ACL Anthology (aclweb.org)).
+
+2. Proportion of Continued Words: Proportion of words in the corpus where the tokenized word is continued across at least two sub-tokens (denoted by continuation symbols ##) (http://juditacs.github.io/2019/02/19/bert-tokenization-stats.html).
+
+3. UNK ratio / Under-trained Tokens: High OOV rates are highly likely to degrade the performance (https://arxiv.org/pdf/2010.02534.pdf).
+
+4. Vocabulary Coverage: Coverage of a representative corpus by a vocabulary’s symbols, measured by computing the total number of tokens (words and punctuation) in the corpus that are represented in the vocabulary divided by the total number of tokens in the corpus (https://arxiv.org/pdf/2004.14870.pdf).
+
+5. Symbol Complexity: Total number of symbols needed to encode a representative set of word types (https://arxiv.org/pdf/2004.14870.pdf).
+
+6. Adaptability:  [@Roman CASTAGNE] Computing these tokenizer metrics on out-of-domain dataset and evaluating how much our tokenizer would suffer from this shift. 
+
+7. Inference Speed: Time required to infer predictions (2105.13626.pdf (arxiv.org)).
+
+8. [Multi-lingual metric] % of monolingual_vocab in multilingual_vocab: Our simple ‘fair baseline’ could consist in training monolingual tokenisers on each language, with equal vocabulary sizes, and then use the union of all resulting vocabularies to create a multilingual tokeniser. Going forward, we might deviate from generating/selecting equal mono-lingual vocabulary sizes. Then, higher the %_monolingual_vocab in %_multilingual_vocab, the better the performance (https://arxiv.org/abs/2012.15613).
+
+9. [Multi-lingual metric] multilingual_vocab vs UD_treebanks_tokens for each language: Compares the tokenizations produced by the monolingual models / multilingual models with the reference tokenizations provided by the human dataset annotators with respect to their sentence lengths (https://arxiv.org/abs/2012.15613).
+
+10. LinMaxMatch: https://ai.googleblog.com/2021/12/a-fast-wordpiece-tokenization-system.html.
