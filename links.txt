@@ -60,3 +60,35 @@ Here is the list of the standard metrics for evaluating different tokenization s
 9. [Multi-lingual metric] multilingual_vocab vs UD_treebanks_tokens for each language: Compares the tokenizations produced by the monolingual models / multilingual models with the reference tokenizations provided by the human dataset annotators with respect to their sentence lengths (https://arxiv.org/abs/2012.15613).
 
 10. LinMaxMatch: https://ai.googleblog.com/2021/12/a-fast-wordpiece-tokenization-system.html.
+
+
+
+[2:25 PM] Kamalkumar Rathinasamy
+
+Spaces and Keywords: We have seen that text-based tokenizers cannot represent code efficiently. Whitespaces and tabs form the largest source of inefficiency. We add additional set of tokens to the tokenizer vocabulary for varying lengths of spaces and tabs to tackle this inefficiency. We also observed that the vocabulary of CodeBERT was missing some Python keywords, like ‘elif’ and ‘nonlocal’ and we also added these keywords as tokens to the tokenizer vocabulary. As a result, these keywords were being efficiently tokenized.
+Space Encoding: We had tab tokens, where each tab is equivalent of 4 spaces, to the pre-trained codeBERT tokenizer, which in turn reduces the number of tokens for the input. This is an important step in reducing the number of tokens in space sensitive programming languages like Python.
+Keyword Encoding: CodeBERT tokenizer already has the programming language keywords considered during their pre-training. But there were couple of Python keywords such as nonlocal and elif which was not part of the same, hence we add the same to the tokenizer to bring in reduction of tokens.
+
+
+
+There are different minification options that we use. These options are as mentioned below:
+
+1. Removing literal statements: Removes statements that entirely consist of a literal value (including docstrings) or replaces with literal zero, if a statement is required.
+
+2. Removing annotations: Removes function and variable annotations.
+
+3. Renaming locals: Shortens any non-global names including local variables, local imports, functions and classes in function scope and so on.
+
+4. Renaming globals: Shortens names in the module scope, including introducing short names for built-ins.
+
+5. Hoist literals: Replaces string and bytes literals with references to module level variables and may introduce new names for some built-in constants.
+
+6. Convert posargs to args: Converts positional only arguments into normal arguments by removing the ‘/’ separator in the argument list.
+
+7. Remove object base: Removes ‘object’ from base class list of all classes in Python 3.
+
+8. Remove pass: Removes pass statements or replaces with literal zero, if a statement is required.
+
+9. Combine imports: Combines adjacent import statements into one without changing order of the imports
+
+Examples for each of these options are presented  in Table 1.
