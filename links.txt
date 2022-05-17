@@ -92,3 +92,13 @@ There are different minification options that we use. These options are as menti
 9. Combine imports: Combines adjacent import statements into one without changing order of the imports
 
 Examples for each of these options are presented  in Table 1.
+
+
+
+
+4.1.1 Settings
+We used CodeSearchNet dataset for our experiments since it was used to train the CodeBERT [3] model. This dataset has Python code samples and its equivalent documentation. The experiment follows the following steps:
+1. First the raw data i.e. Python code is fed to the tokenizer and tokenization metrics are generated. This serves as the base for all further experiments.
+2. Next, we perform space encoding (details below) and then pre-process the data using Python minifier. Python minifier transforms Python code into its most compact representation. There are advanced minification options available as well with the Python minifier which minify the data using various techniques like combining adjacent import statements into a single statement, removing pass statements, removing annotations and so on. In this step, we use the Python minifier in its raw form and do not use any of the advanced options. The tokenization metrics is recalculated and recorded.
+3. Now, we add keyword encoding (details below) to the previous step and repeat the process. The tokenization metrics is recalculated and recorded again.
+4. Next, we chose to use the advanced minification options of the Python minifier. We first perform space and keyword encoding and then select one advanced minification option to recalculate the tokenization metrics and record them. We repeat this step by cumulatively including more options, one at a time.
