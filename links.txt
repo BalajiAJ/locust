@@ -134,3 +134,32 @@ We used CodeSearchNet dataset for our experiments since it was used to train the
 
 
 Tokenizers specific to programming languages were used to train the Facebook Transcoder model, such as, the javalang5 tokenizer for Java, the standard library tokenizer for Python6, and the clang7 tokenizer for C++. These tokenizers ensured that insignificant code changes, such as adding extra new lines or spaces, do not have any effect on the tokenized sequence. Concatenation of tokenized C++, Java, and Python files are then tokenized with fastBPE8 to learn BPE codes. The code lexer for Open AI's Codex model was constructed on top of the GPT-3 text tokenizer to get the most out of GPT text representations. This tokenizer was not particularly effective for expressing code, such as encoding whitespace, since the distribution of words in GitHub code varied from that of normal text. Since encoding whitespace causes the most inefficiency in code tokenization, they introduced an additional set of tokens to represent whitespace runs of various lengths resulting in around 30% fewer tokens. This motivated GPT-Neo-125M-Code-Clippy model to enhance its tokenizer, GPT-Neo tokenizer, to accommodate additional whitespace characters. GPT-Neo tokenizer vocabulary contains “\t” token and the new tokens connected to indentation, specifically ["\t\t", "  ", "    ", "        "], were added to GPT-Neo-125M-Code-Clippy tokenizer vocabulary. To assist the model in associating these newly added tokens with indentation, the embedding layer of these tokens were initialized with the same weights as the “\t” token.
+
+
+
+
+
+4.1.2 Results
+Table 3 presents the tokenization metrics for CodeSearchNet dataset for Python data samples. It displays the tokenization metrics token count and fertility. The metrics are populated for train, test and validation datasets respectively. Similarly, Table 4 presents the results of applying the pre-processing techniques on Pytorrent Dataset. This dataset is further used for finetuning the CodeBert Model and evaluating the same. This will be discussed in the next section. Both these tables indicate that our proposed method reduces the token count and fertility score, which is very essential for language models with token length limit.
+
+
+
+(Shift table 4 in tokenization section. Also, in the table, 'Valid' column should appear before 'Test')
+
+
+
+Table 5 - writeup. Balaji, since you have performed this part, request to please add few lines on the technique used. Currently, there is no connection to the table in the writeup.
+
+
+
+Fine-Tuning
+4.2.1 Settings
+We have shown that applying various pre-processing techniques helps reduce the token count. We further need to ensure that these pre-processing techniques do not diminish the performance of the model. To establish this fact, we fine-tune the model after applying the pre-processing techniques and measure the Bleu-4 score.
+
+
+
+For experiments on fine-tuning, we used PyTorrent dataset, which consists of Python code and its equivalent documentation. Due to compute restrictions, we consider only a subset of the Pytorrent dataset. Our training data consists of 251,820 training records which is equivalent to 995MB. The development and test data consists of 13,914 and 14,918 records respectively.
+
+
+
+Prior to fine-tuning, we performed the pre-processing minification techniques on the dataset and on the pre-trained tokenizer as described in section 4.1.1 The minified dataset records are tokenized using the modified tokenizer and tokenization metrics are noted. This was followed by fine-tuning of the pre-trained CodeBERT [3] model. For training, we use a learning rate of 5e-5, beam_size of 10 and train the model for 10 epochs. We then measure the Bleu-4 score and record it. The results for the same are presented below.
