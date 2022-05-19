@@ -198,3 +198,18 @@ Response for (13): Conclusion: We propose novel approaches to improve the toke
 
 
 Response for (10): Table 5 details the performance of fine-tuned CodeBERT model and tokenization metrics of PyTorrent dataset for Python data samples. This table indicates that the tokenization metrics improve by adopting pre-processing approaches. The Bleu-4 scores also imply that by adopting pre-processing approaches, the model’s performance is not diminished. Pre-processing approach ‘Remove literal statements’ diminished BLEU-4 score by 48% indicating that this approach is not suited for Code documentation task and hence, experiments were conducted without applying ‘Remove literal statements’ approach. Pre-processing approaches till ‘Rename locals’ in Table 5 shows that our proposed method improves the tokenization metrics by 8.4% without reducing the BLEU-4 score. Pre-processing approaches from ‘Rename locals’ till ‘Remove pass’ in Table 5 shows that our proposed method improves the tokenization metrics by 2.6% at the cost of decreasing the BLEU-4 score by 7.7%. This indicates that the appropriate pre-processing techniques must be judiciously identified and applied for the given task and the programming language under consideration.
+
+---------------------------------------------------------
+
+Response for (7):
+
+At the end of 4.1.1 Settings (after Table 4):
+
+We also evaluated these pre-processing approaches on improving tokenization efficiency across programming languages and file formats. We measured the tokenization metrics for the original code files sourced from GitHub and its minified version. For JavaScript, we experimented with the minified files available for jQuery and Bootstrap. For C#, we used CSharpMinifier3 to generate the minified files. For other languages/file formats, MinifyAll4 is used to generate the minified files.
+
+
+Tokenization is a way of separating a piece of text into smaller units called tokens, which is the primary step in building language models. Natural language tokenizer is used to tokenize natural language, like English. Language models like GPT-3 and GPT-J are trained on Natural Language tokenizers. These models have a limitation on the context length, which includes both the text prompt and generated response, such as 2048 tokens in GPT-3 and GPT-J, and 4096 tokens in Codex. Previous research experiments have shown that Natural Language tokenizers are not effective in representing code [3] resulting in more tokens to represent given input.
+
+Append to 4.1.2 Results:
+
+Table 6 presents the tokenization metric, token count, across programming languages and file formats. This table indicates that our proposed method improves tokenization metrics by 25 to 65%. Thus, these experiments demonstrate that the pre-processing approaches can be applied across programming languages and file formats.
