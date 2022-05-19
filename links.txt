@@ -216,3 +216,10 @@ Table 6 presents the tokenization metric, token count, across programming langua
 
 
 Tokenization is a way of separating a piece of text into smaller units called tokens, which is the primary step in building language models. Natural language tokenizer is used to tokenize natural language, like English. Language models like GPT-3 and GPT-J are trained on Natural Language tokenizers. These models have a limitation on the context length, which includes both the text prompt and generated response, such as 2048 tokens in GPT-3 and GPT-J, and 4096 tokens in Codex. Previous research experiments have shown that Natural Language tokenizers are not effective in representing code [3] resulting in more tokens to represent given input.
+
+
+
+---------------------------------------------
+
+4.2.1 Settings
+We have shown that applying various pre-processing techniques helps reduce the token count. We further need to ensure that these pre-processing techniques do not diminish the performance of the model. To establish this fact, we fine-tune the model after applying the pre-processing techniques and measure the BLEU-4 score. For experiments on fine-tuning, we used a subset of PyTorrent dataset,which consists of Python code and its equivalent documentation. Our training dataset consists of 251,820 training records which is equivalent to 995MB. The development and test data consists of 13,914 and 14,918 records respectively. Prior to fine-tuning, we applied the pre-processing approaches as described in section 4.1.1 on this Pytorrent dataset and the tokenization metrics are noted. This was followed by fine-tuning of the pre-trained CodeBERT [4] model. For fine-tuning, we use a learning rate of 5e-5, beam_size of 10 and train the model for 10 epochs. The finetuning exercise took approximately 10 days on 2 NVIDIA TESLA P100 GPU’s. We use the same cumulative approach for fine-tuning that was used for tokenization as described below:
